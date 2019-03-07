@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "702863578711",
+    "firebase_url": "https://andersenboard.firebaseio.com",
+    "project_id": "andersenboard",
+    "storage_bucket": "andersenboard.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:702863578711:android:08fc88613148f87f",
+        "android_client_info": {
+          "package_name": "com.sadwyn.andersenrooms"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "702863578711-f1q7gvejon5lhj16fflh74mv2neo0a5k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtjDQSPnc9jcN16MbwM5MSlj7O4a7hKyE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
