@@ -38,5 +38,4 @@ class MainActivityPresenter : BasePresenter<MainActivityView>() {
             Log.w("TAG", "Error getting documents.", it)
         }
     }
-
 }
