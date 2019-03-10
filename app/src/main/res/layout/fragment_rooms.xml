@@ -6,105 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".ui.activity.MainActivity">
 
-    <ImageButton
-        android:id="@+id/firstMeetroom"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginStart="60dp"
-        android:layout_marginTop="40dp"
-        app:layout_constraintBottom_toTopOf="@+id/secondMeetroom"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageButton
-        android:id="@+id/secondMeetroom"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginEnd="60dp"
-        app:layout_constraintBottom_toTopOf="@+id/thirdMeetroom"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/firstMeetroom" />
-
-    <ImageButton
-        android:id="@+id/thirdMeetroom"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginStart="60dp"
-        app:layout_constraintBottom_toTopOf="@+id/fourthMeetroom"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/secondMeetroom" />
-
-    <ImageButton
-        android:id="@+id/fourthMeetroom"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginEnd="60dp"
-        app:layout_constraintBottom_toTopOf="@+id/fifthMeetroom"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/thirdMeetroom" />
-
-    <ImageButton
-        android:id="@+id/fifthMeetroom"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginStart="60dp"
-        android:layout_marginBottom="40dp"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/roomsRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fourthMeetroom" />
-
-    <TextView
-        android:id="@+id/tv3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="3"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/thirdMeetroom"
-        app:layout_constraintEnd_toEndOf="@+id/thirdMeetroom"
-        app:layout_constraintStart_toStartOf="@+id/thirdMeetroom" />
-
-    <TextView
-        android:id="@+id/tv1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="1"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/firstMeetroom"
-        app:layout_constraintEnd_toEndOf="@+id/firstMeetroom"
-        app:layout_constraintStart_toStartOf="@+id/firstMeetroom" />
-
-    <TextView
-        android:id="@+id/tv2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="2"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/secondMeetroom"
-        app:layout_constraintEnd_toEndOf="@+id/secondMeetroom"
-        app:layout_constraintStart_toStartOf="@+id/secondMeetroom" />
-
-    <TextView
-        android:id="@+id/tv4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="4"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/fourthMeetroom"
-        app:layout_constraintEnd_toEndOf="@+id/fourthMeetroom"
-        app:layout_constraintStart_toStartOf="@+id/fourthMeetroom" />
-
-    <TextView
-        android:id="@+id/tv5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="5"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/fifthMeetroom"
-        app:layout_constraintEnd_toEndOf="@+id/fifthMeetroom"
-        app:layout_constraintStart_toStartOf="@+id/fifthMeetroom" />
+        app:layout_constraintTop_toTopOf="parent"/>
 </android.support.constraint.ConstraintLayout>
