@@ -2,11 +2,8 @@ package com.sadwyn.andersenrooms.presentation.presenter
 
 
 import android.annotation.SuppressLint
-import android.support.localbroadcastmanager.R
 import com.arellomobile.mvp.InjectViewState
-import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -16,82 +13,78 @@ import com.sadwyn.andersenrooms.data.Room
 import com.sadwyn.andersenrooms.data.User
 import com.sadwyn.andersenrooms.presentation.view.MainActivityView
 import com.sadwyn.andersenrooms.ui.base.BasePresenter
-import com.sadwyn.andersenrooms.ui.base.BaseView
+import io.reactivex.Completable
 import io.reactivex.Observable
-import io.reactivex.ObservableSource
-import io.reactivex.Single
-import io.reactivex.SingleSource
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.functions.BooleanSupplier
-import io.reactivex.functions.Consumer
 import io.reactivex.functions.Function3
 import io.reactivex.schedulers.Schedulers
-import java.util.*
-import kotlin.collections.ArrayList
-import android.support.test.orchestrator.junit.BundleJUnitUtils.getResult
-import android.R
-
-
 
 
 @InjectViewState
-class MainActivityPresenter : BasePresenter<MainActivityView>() {
+class MainActivityPresenter : BasePresenter<MainActivityView>(), FirebaseSuccessListener {
+
     private val events = "Events"
     private val places = "Places"
     private val users = "Users"
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
+    private var eventsQuery: QuerySnapshot? = null
+    private var roomsQuery: QuerySnapshot? = null
+    private var usersQuery: QuerySnapshot? = null
+
     @SuppressLint("CheckResult")
-    override fun attachView(view: BaseView?) {
+    override fun attachView(view: MainActivityView?) {
         super.attachView(view)
-
-        db.collection(events).get().continueWithTask(Continuation<QuerySnapshot,Task<List<QuerySnapshot>>> {
-            val tasks = ArrayList<Task<QuerySnapshot>>()
-            tasks.add(db.collection(places).get())
-            tasks.add(db.collection(users).get())
-            Tasks.whenAllSuccess(tasks)
-        }){
-
-        }
-
-
-
-
-
-        { db.collection(places).get() }.continueWithTask { db.collection(users).get()}
+        eventsQuery = null
+        roomsQuery = null
+        usersQuery = null
         Observable.zip(
-                Observable.just(db.collection(events).get()),
-                Observable.just(db.collection(places).get()),
-                Observable.just(db.collection(users).get()),
-                Function3<Task<QuerySnapshot>, Task<QuerySnapshot>, Task<QuerySnapshot>, List<Room>>
-                { questions, answers, favorites ->
-                    collectData(questions.result!!.documents, answers.result!!.documents, favorites.result!!.documents)
-                })
+                Observable.just(db.collection(events).get().addOnSuccessListener { onEventsSuccess(it) }),
+                Observable.just(db.collection(places).get().addOnSuccessListener { onRoomsSuccess(it) }),
+                Observable.just(db.collection(users).get().addOnSuccessListener { onUsersSuccess(it) }),
+                Function3<Task<QuerySnapshot>, Task<QuerySnapshot>, Task<QuerySnapshot>, Completable>
+                {events, places, users -> Completable.complete()})
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    if (it != null) {
-                        viewState.updateRoomsStatus(it)
-                    }
-                }, { t: Throwable? ->
-                    t?.printStackTrace()
-                })
+                .subscribe({}, { t: Throwable? -> t?.printStackTrace() })
 
     }
 
+    override fun onEventsSuccess(querySnapshot: QuerySnapshot) {
+        this.eventsQuery = querySnapshot
+        if(roomsQuery!=null && usersQuery!=null){
+            collectData(eventsQuery!!.documents, roomsQuery!!.documents, usersQuery!!.documents)
+        }
+    }
 
-    private fun collectData(eventsList: List<DocumentSnapshot>, placesList: List<DocumentSnapshot>, usersList: List<DocumentSnapshot>): List<Room> {
+    override fun onRoomsSuccess(querySnapshot: QuerySnapshot) {
+        this.roomsQuery = querySnapshot
+        if(eventsQuery!=null && usersQuery!=null){
+            collectData(eventsQuery!!.documents, roomsQuery!!.documents, usersQuery!!.documents)
+        }
+    }
+
+    override fun onUsersSuccess(querySnapshot: QuerySnapshot) {
+        this.usersQuery = querySnapshot
+        if(roomsQuery!=null && eventsQuery!=null){
+            collectData(eventsQuery!!.documents, roomsQuery!!.documents, usersQuery!!.documents)
+        }
+    }
+
+
+    private fun collectData(eventsList: List<DocumentSnapshot>, placesList: List<DocumentSnapshot>, usersList: List<DocumentSnapshot>) {
         val rooms = ArrayList<Room>()
         for (placeSnapshot in placesList) {
             val room = Room()
             val events = collectEvents(eventsList, placeSnapshot, usersList)
             room.events = events
-            room.id = placeSnapshot["id"] as String
-            room.name = placeSnapshot["title"] as String
-            room.roomPhotoUrl = placeSnapshot["avatar"] as String
+            room.id = placeSnapshot["id"] as? String
+            room.name = placeSnapshot["name"] as? String
+            room.roomPhotoUrl = placeSnapshot["avatar"] as? String
+            room.initRoom()
             rooms.add(room)
         }
-        return rooms
+        viewState.updateRoomsStatus(rooms )
     }
 
     private fun collectEvents(eventsList: List<DocumentSnapshot>, placeSnapshot: DocumentSnapshot, usersList: List<DocumentSnapshot>): ArrayList<Event> {
@@ -115,12 +108,12 @@ class MainActivityPresenter : BasePresenter<MainActivityView>() {
     private fun getEvent(placeSnapshot: DocumentSnapshot, eventSnapshot: DocumentSnapshot): Event? {
         if (placeSnapshot.id == eventSnapshot["place"]) {
             return Event(
-                    eventSnapshot["eventType"] as Long,
-                    eventSnapshot["title"] as String,
-                    eventSnapshot["description"] as String,
-                    eventSnapshot["startDate"] as Timestamp,
-                    eventSnapshot["endDate"] as Timestamp,
-                    eventSnapshot["duration"] as Long
+                    eventSnapshot["eventType"] as? Long,
+                    eventSnapshot["title"] as? String,
+                    eventSnapshot["description"] as? String,
+                    eventSnapshot["startDate"] as? Timestamp,
+                    eventSnapshot["endDate"] as? Timestamp,
+                    eventSnapshot["duration"] as? Long
             )
         }
         return null
@@ -128,18 +121,15 @@ class MainActivityPresenter : BasePresenter<MainActivityView>() {
 
     private fun getUserForEvent(userSnapshot: DocumentSnapshot, eventSnapshot: DocumentSnapshot): User? {
         return if (userSnapshot.id == eventSnapshot["user"]) {
-            User(userSnapshot["email"] as String,
-                    userSnapshot["family_name"] as String,
-                    userSnapshot["given_name"] as String,
-                    userSnapshot["picture"] as String,
-                    userSnapshot["verified_email"] as Boolean)
+            User(userSnapshot["email"] as? String,
+                    userSnapshot["family_name"] as? String,
+                    userSnapshot["given_name"] as? String,
+                    userSnapshot["picture"] as? String,
+                    userSnapshot["verified_email"] as? Boolean)
         } else {
             null
         }
     }
-
-
-
 }
 
 

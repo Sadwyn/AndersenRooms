@@ -10,8 +10,31 @@ data class Room(var id: String? = null,
                 var isBusy: Boolean? = false,
                 var availableRentTime: List<Date>? = null,
                 var roomPhotoUrl: String? = null,
-                var currentRentProgress: Int? = -1
+                var currentRentProgress: Int? = -1,
+                var currentEvent: Event? = null
+
+
 ) : Parcelable {
+
+    val calendar = Calendar.getInstance()
+
+    private fun parseEvents() {
+        events?.let {
+            for (event in it) {
+                if (calendar.time.after(event.startDate?.toDate()) && calendar.before(event.endDate?.toDate())) {
+                    currentEvent = event
+                    isBusy = true
+                    return
+                }
+            }
+            isBusy = false
+        }
+    }
+
+    fun initRoom(){
+        parseEvents()
+    }
+
     constructor(source: Parcel) : this(
             source.readString(),
             source.readString(),

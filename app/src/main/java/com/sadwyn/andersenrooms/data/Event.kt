@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.google.firebase.Timestamp
 
 data class Event(
-        var eventType: Long = -1,
+        var eventType: Long? = -1,
         var title: String? = null,
         var description: String? = null,
         var startDate: Timestamp? = null,
@@ -26,7 +26,7 @@ data class Event(
     override fun describeContents() = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
-        writeLong(eventType)
+        writeValue(eventType)
         writeString(title)
         writeString(description)
         writeParcelable(startDate, 0)

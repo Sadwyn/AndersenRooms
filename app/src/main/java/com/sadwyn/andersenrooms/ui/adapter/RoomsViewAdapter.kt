@@ -1,16 +1,16 @@
 package com.sadwyn.andersenrooms.ui.adapter
 
-import android.net.Uri
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
 import com.sadwyn.andersenrooms.R
 import com.sadwyn.andersenrooms.data.Room
 import kotlinx.android.synthetic.main.room_view.view.*
 
 
-class RoomsViewAdapter : RecyclerView.Adapter<RoomsViewAdapter.RoomViewHolder>() {
+class RoomsViewAdapter(val onBookMeetRoom: OnBookMeetRoom) : RecyclerView.Adapter<RoomsViewAdapter.RoomViewHolder>() {
     var rooms: List<Room> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RoomViewHolder {
@@ -23,24 +23,23 @@ class RoomsViewAdapter : RecyclerView.Adapter<RoomsViewAdapter.RoomViewHolder>()
 
     override fun onBindViewHolder(holder: RoomViewHolder, position: Int) {
         holder.bind(rooms[position])
+
     }
 
-    class RoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class RoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(room: Room) = with(itemView) {
-
-            bookNow.setOnClickListener {
-
-            }
-
-            showRoomSchedule.setOnClickListener {
-
-            }
-            val roomPhotoUri = Uri.parse(room.roomPhotoUrl)
+            bookNow.setOnClickListener {onBookMeetRoom.onBookClick(room)}
+            showRoomSchedule.setOnClickListener { onBookMeetRoom.onScheduleClick(room) }
+            room.roomPhotoUrl?.let{Glide.with(itemView.context).load(it).into(meetUpRoomPhoto) }
+            room.currentEvent?.user?.pictureUrl?.let { Glide.with(itemView.context).load(it).into(personPhoto) }
             roomName.text = room.name
-            bookNow.isEnabled = room.isBusy!!
-            meetUpRoomPhoto.setImageURI(roomPhotoUri)
+            bookNow.isEnabled = !room.isBusy!!
             roomRentProgress.progress = room.currentRentProgress!!
-
         }
+    }
+
+    interface OnBookMeetRoom {
+        fun onBookClick(room: Room)
+        fun onScheduleClick(room: Room)
     }
 }

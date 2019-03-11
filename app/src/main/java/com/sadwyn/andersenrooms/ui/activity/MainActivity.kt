@@ -17,7 +17,7 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
     @InjectPresenter
     internal lateinit var mMainActivityPresenter: MainActivityPresenter
 
-    private lateinit var router: Router
+    public lateinit var router: Router
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

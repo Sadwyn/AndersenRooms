@@ -15,7 +15,7 @@ import com.sadwyn.andersenrooms.ui.adapter.RoomsViewAdapter
 import com.sadwyn.andersenrooms.ui.base.BaseFragment
 import kotlinx.android.synthetic.main.fragment_rooms.*
 
-class RoomsFragment : BaseFragment(), RoomsView {
+class RoomsFragment : BaseFragment(), RoomsView, RoomsViewAdapter.OnBookMeetRoom{
     @InjectPresenter
     internal lateinit var mRoomsPresenter: RoomsPresenter
 
@@ -36,15 +36,19 @@ class RoomsFragment : BaseFragment(), RoomsView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        roomsRecycler.apply {
-            layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-            adapter = RoomsViewAdapter()
-        }
-    }
-
-    override fun updateRoomsStatus(rooms: List<Room>) {
+        adapter = RoomsViewAdapter(this)
+        roomsRecycler.layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+        roomsRecycler.adapter = adapter
         adapter.rooms = rooms
         adapter.notifyDataSetChanged()
+    }
+
+    override fun onBookClick(room: Room) {
+        router?.routeToDatePickerFragment(room)
+    }
+
+    override fun onScheduleClick(room: Room) {
+
     }
 
     companion object {
