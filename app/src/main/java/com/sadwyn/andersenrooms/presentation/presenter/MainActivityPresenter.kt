@@ -2,8 +2,11 @@ package com.sadwyn.andersenrooms.presentation.presenter
 
 
 import android.annotation.SuppressLint
+import android.support.localbroadcastmanager.R
 import com.arellomobile.mvp.InjectViewState
+import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -15,10 +18,20 @@ import com.sadwyn.andersenrooms.presentation.view.MainActivityView
 import com.sadwyn.andersenrooms.ui.base.BasePresenter
 import com.sadwyn.andersenrooms.ui.base.BaseView
 import io.reactivex.Observable
+import io.reactivex.ObservableSource
+import io.reactivex.Single
+import io.reactivex.SingleSource
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.BooleanSupplier
+import io.reactivex.functions.Consumer
 import io.reactivex.functions.Function3
 import io.reactivex.schedulers.Schedulers
+import java.util.*
 import kotlin.collections.ArrayList
+import android.support.test.orchestrator.junit.BundleJUnitUtils.getResult
+import android.R
+
+
 
 
 @InjectViewState
@@ -28,10 +41,24 @@ class MainActivityPresenter : BasePresenter<MainActivityView>() {
     private val users = "Users"
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-
     @SuppressLint("CheckResult")
     override fun attachView(view: BaseView?) {
         super.attachView(view)
+
+        db.collection(events).get().continueWithTask(Continuation<QuerySnapshot,Task<List<QuerySnapshot>>> {
+            val tasks = ArrayList<Task<QuerySnapshot>>()
+            tasks.add(db.collection(places).get())
+            tasks.add(db.collection(users).get())
+            Tasks.whenAllSuccess(tasks)
+        }){
+
+        }
+
+
+
+
+
+        { db.collection(places).get() }.continueWithTask { db.collection(users).get()}
         Observable.zip(
                 Observable.just(db.collection(events).get()),
                 Observable.just(db.collection(places).get()),
@@ -59,6 +86,9 @@ class MainActivityPresenter : BasePresenter<MainActivityView>() {
             val room = Room()
             val events = collectEvents(eventsList, placeSnapshot, usersList)
             room.events = events
+            room.id = placeSnapshot["id"] as String
+            room.name = placeSnapshot["title"] as String
+            room.roomPhotoUrl = placeSnapshot["avatar"] as String
             rooms.add(room)
         }
         return rooms
@@ -70,7 +100,7 @@ class MainActivityPresenter : BasePresenter<MainActivityView>() {
             val event = getEvent(placeSnapshot, eventSnapshot)
             if (event != null) {
                 for (userSnapshot in usersList) {
-                    val user = getUserForEvent(userSnapshot, eventSnapshot, event)
+                    val user = getUserForEvent(userSnapshot, eventSnapshot)
                     if (user != null) {
                         event.user = user
                         break
@@ -96,7 +126,7 @@ class MainActivityPresenter : BasePresenter<MainActivityView>() {
         return null
     }
 
-    private fun getUserForEvent(userSnapshot: DocumentSnapshot, eventSnapshot: DocumentSnapshot, event: Event): User? {
+    private fun getUserForEvent(userSnapshot: DocumentSnapshot, eventSnapshot: DocumentSnapshot): User? {
         return if (userSnapshot.id == eventSnapshot["user"]) {
             User(userSnapshot["email"] as String,
                     userSnapshot["family_name"] as String,
@@ -107,6 +137,9 @@ class MainActivityPresenter : BasePresenter<MainActivityView>() {
             null
         }
     }
+
+
+
 }
 
 

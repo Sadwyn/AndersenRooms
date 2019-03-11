@@ -23,10 +23,10 @@ class MainActivity : MvpAppCompatActivity(), MainActivityView {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         router = Router(this)
-        router.replaceFirstFragment(RoomsFragment.newInstance())
     }
 
     override fun updateRoomsStatus(rooms: List<Room>) {
+        router.routeToRoomsFragment(rooms)
     }
 
     companion object {

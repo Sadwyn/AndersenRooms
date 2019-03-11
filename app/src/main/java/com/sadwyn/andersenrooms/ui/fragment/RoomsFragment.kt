@@ -20,9 +20,18 @@ class RoomsFragment : BaseFragment(), RoomsView {
     internal lateinit var mRoomsPresenter: RoomsPresenter
 
     lateinit var adapter: RoomsViewAdapter
+    lateinit var rooms : ArrayList<Room>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_rooms, container, false)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        rooms = ArrayList()
+        if(arguments!=null){
+            (arguments!!.getParcelableArray("ROOMS") as Array<Room>).forEach {rooms.add(it)}
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

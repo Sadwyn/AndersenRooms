@@ -1,12 +1,46 @@
 package com.sadwyn.andersenrooms.data
 
+import android.os.Parcel
+import android.os.Parcelable
 import java.util.*
 
-data class Room(val id: String? = null,
-                val name: String? = null,
-                var events : List<Event>? = null,
-                val isBusy: Boolean? = false,
-                val availableRentTime: List<Date>? = null,
-                val personPhotoUrl: String? = null,
-                val roomPhotoUrl: String? = null,
-                val currentRentProgress: Int? = -1)
+data class Room(var id: String? = null,
+                var name: String? = null,
+                var events: List<Event>? = null,
+                var isBusy: Boolean? = false,
+                var availableRentTime: List<Date>? = null,
+                var roomPhotoUrl: String? = null,
+                var currentRentProgress: Int? = -1
+) : Parcelable {
+    constructor(source: Parcel) : this(
+            source.readString(),
+            source.readString(),
+            source.createTypedArrayList(Event.CREATOR),
+            source.readValue(Boolean::class.java.classLoader) as Boolean?,
+            ArrayList<Date>().apply { source.readList(this, Date::class.java.classLoader) },
+            source.readString(),
+            source.readValue(Int::class.java.classLoader) as Int?
+    )
+
+    override fun describeContents() = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(id)
+        writeString(name)
+        writeTypedList(events)
+        writeValue(isBusy)
+        writeList(availableRentTime)
+        writeString(roomPhotoUrl)
+        writeValue(currentRentProgress)
+    }
+
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<Room> = object : Parcelable.Creator<Room> {
+            override fun createFromParcel(source: Parcel): Room = Room(source)
+            override fun newArray(size: Int): Array<Room?> = arrayOfNulls(size)
+        }
+    }
+}
+
+

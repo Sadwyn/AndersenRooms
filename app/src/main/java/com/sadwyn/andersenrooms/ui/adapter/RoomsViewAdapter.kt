@@ -35,11 +35,9 @@ class RoomsViewAdapter : RecyclerView.Adapter<RoomsViewAdapter.RoomViewHolder>()
             showRoomSchedule.setOnClickListener {
 
             }
-            val personPhotoUri = Uri.parse(room.personPhotoUrl)
             val roomPhotoUri = Uri.parse(room.roomPhotoUrl)
             roomName.text = room.name
             bookNow.isEnabled = room.isBusy!!
-            personPhoto.setImageURI(personPhotoUri)
             meetUpRoomPhoto.setImageURI(roomPhotoUri)
             roomRentProgress.progress = room.currentRentProgress!!
 
